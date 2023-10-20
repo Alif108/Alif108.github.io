@@ -893,17 +893,17 @@ body.offcanvas {
   width: 100%;
   float: left;
   background: #fff;
-  margin-bottom: 3em; }
+  margin-bottom: 1em; }
   @media screen and (max-width: 768px) {
     .project-entry {
-      margin-bottom: 3em; } }
+      margin-bottom: 1em; } }
   .project-entry .project-img {
     width: 80%;
     float: left;
     overflow: hidden;
     position: relative;
     z-index: 1;
-    margin-bottom: 50px; }
+    margin-bottom: 30px; }
     .project-entry .project-img img {
       position: relative;
       max-width: 100%;
@@ -917,7 +917,7 @@ body.offcanvas {
       transition: 0.3s; }
   .project-entry .desc h3 {
     font-size: 20px;
-    margin-bottom: 25px;
+    margin-bottom: 15px;
     line-height: auto;
     font-weight: 500;
     text-transform: uppercase;
