@@ -280,244 +280,271 @@
     </main>
   </div>
 
-  <script>
-    const BIB_FILE = "publication.bib";
+<script>
+  /************************************************************
+   * Publication settings
+   ************************************************************/
+  const PUBLICATION_BIB_FILE = "publication.bib";
 
-    function decodeLatex(text) {
-      if (!text) return "";
-      return text
-        .replace(/[{}]/g, "")
-        .replace(/\\&/g, "&")
-        .replace(/\\_/g, "_")
-        .replace(/\\%/g, "%")
-        .replace(/\\textit\s*/g, "")
-        .replace(/\\emph\s*/g, "")
-        .replace(/\\'a/g, "á")
-        .replace(/\\'e/g, "é")
-        .replace(/\\'i/g, "í")
-        .replace(/\\'o/g, "ó")
-        .replace(/\\'u/g, "ú")
-        .replace(/\\`a/g, "à")
-        .replace(/\\`e/g, "è")
-        .replace(/\\`i/g, "ì")
-        .replace(/\\`o/g, "ò")
-        .replace(/\\`u/g, "ù")
-        .replace(/\\"a/g, "ä")
-        .replace(/\\"e/g, "ë")
-        .replace(/\\"i/g, "ï")
-        .replace(/\\"o/g, "ö")
-        .replace(/\\"u/g, "ü")
-        .replace(/\\~n/g, "ñ")
-        .replace(/\\c\s*c/g, "ç")
-        .replace(/\s+/g, " ")
-        .trim();
+  // Names to bold in the author list
+  const HIGHLIGHT_AUTHORS = [
+    "Muhtasim Noor Alif",
+    "Wei Zhang"
+  ];
+
+  // Optional suffixes after author names
+  // Example: Wei Zhang#
+  const AUTHOR_SUFFIXES = {
+    "Wei Zhang": "#"
+  };
+
+  /************************************************************
+   * Load and render publications
+   ************************************************************/
+  async function loadPublications() {
+    const container = document.getElementById("publication-list");
+
+    try {
+      const response = await fetch(PUBLICATION_BIB_FILE);
+
+      if (!response.ok) {
+        throw new Error("Could not load publication.bib");
+      }
+
+      const bibText = await response.text();
+      const publications = parseBibTeX(bibText);
+
+      publications.sort((a, b) => {
+        const yearA = parseInt(a.year || "0", 10);
+        const yearB = parseInt(b.year || "0", 10);
+        return yearB - yearA;
+      });
+
+      container.innerHTML = renderPublications(publications);
+    } catch (error) {
+      container.innerHTML = `
+        <div class="bib-error">
+          Could not load <code>publication.bib</code>. This usually happens if you open
+          <code>index.html</code> directly from your computer. Run
+          <code>python -m http.server</code> in this folder and open
+          <code>http://localhost:8000</code>.
+        </div>
+      `;
+    }
+  }
+
+  /************************************************************
+   * Simple BibTeX parser
+   ************************************************************/
+  function parseBibTeX(text) {
+    const entries = [];
+    const entryRegex = /@(\w+)\s*\{\s*([^,]+),([\s\S]*?)\n\}/g;
+    let match;
+
+    while ((match = entryRegex.exec(text)) !== null) {
+      const type = match[1].trim().toLowerCase();
+      const key = match[2].trim();
+      const body = match[3];
+
+      const entry = {
+        type,
+        key
+      };
+
+      const fieldRegex = /(\w+)\s*=\s*(\{(?:[^{}]|\{[^{}]*\})*\}|"[^"]*"|[^,\n]+)\s*,?/g;
+      let fieldMatch;
+
+      while ((fieldMatch = fieldRegex.exec(body)) !== null) {
+        const fieldName = fieldMatch[1].trim().toLowerCase();
+        let fieldValue = fieldMatch[2].trim();
+
+        fieldValue = fieldValue
+          .replace(/^\{/, "")
+          .replace(/\}$/, "")
+          .replace(/^"/, "")
+          .replace(/"$/, "")
+          .replace(/\\&/g, "&")
+          .replace(/--/g, "–")
+          .replace(/\s+/g, " ")
+          .trim();
+
+        entry[fieldName] = fieldValue;
+      }
+
+      entries.push(entry);
     }
 
-    function splitBibEntries(bibText) {
-      const entries = [];
-      let i = 0;
+    return entries;
+  }
 
-      while (i < bibText.length) {
-        const at = bibText.indexOf("@", i);
-        if (at === -1) break;
+  /************************************************************
+   * Render publication list
+   ************************************************************/
+  function renderPublications(publications) {
+    if (!publications.length) {
+      return "<p>No publications found.</p>";
+    }
 
-        const open = bibText.indexOf("{", at);
-        if (open === -1) break;
+    let html = "<ul class='publications'>";
 
-        let depth = 0;
-        let end = open;
-        for (; end < bibText.length; end++) {
-          const ch = bibText[end];
-          if (ch === "{") depth++;
-          if (ch === "}") depth--;
-          if (depth === 0) {
-            entries.push(bibText.slice(at, end + 1));
-            break;
-          }
+    publications.forEach(pub => {
+      const authors = formatAuthors(pub.author || "");
+      const title = formatTitle(pub);
+      const venue = formatVenue(pub);
+      const links = formatLinks(pub);
+
+      html += `
+        <li>
+          ${authors}. ${title}. ${venue}${links}
+        </li>
+      `;
+    });
+
+    html += "</ul>";
+    return html;
+  }
+
+  /************************************************************
+   * Format authors
+   ************************************************************/
+  function formatAuthors(authorField) {
+    if (!authorField) return "";
+
+    return authorField
+      .split(/\s+and\s+/)
+      .map(author => {
+        let cleanAuthor = author.trim();
+
+        // Convert "Last, First" to "First Last"
+        if (cleanAuthor.includes(",")) {
+          const parts = cleanAuthor.split(",").map(x => x.trim());
+          cleanAuthor = `${parts[1]} ${parts[0]}`;
         }
-        i = end + 1;
-      }
 
-      return entries;
-    }
+        cleanAuthor = cleanAuthor
+          .replace(/\\#/g, "#")
+          .replace(/\s+/g, " ")
+          .trim();
 
-    function parseEntry(entryText) {
-      const typeMatch = entryText.match(/^@(\w+)\s*\{/);
-      const type = typeMatch ? typeMatch[1].toLowerCase() : "misc";
-      const firstComma = entryText.indexOf(",");
-      const lastBrace = entryText.lastIndexOf("}");
-      const key = entryText.slice(entryText.indexOf("{") + 1, firstComma).trim();
-      const body = entryText.slice(firstComma + 1, lastBrace);
+        const baseName = cleanAuthor.replace(/#$/, "").trim();
+        const suffix = AUTHOR_SUFFIXES[baseName] || "";
 
-      const fields = {};
-      let pos = 0;
-
-      while (pos < body.length) {
-        while (pos < body.length && /[\s,]/.test(body[pos])) pos++;
-
-        const nameMatch = body.slice(pos).match(/^([a-zA-Z0-9_\-]+)\s*=/);
-        if (!nameMatch) break;
-
-        const name = nameMatch[1].toLowerCase();
-        pos += nameMatch[0].length;
-        while (pos < body.length && /\s/.test(body[pos])) pos++;
-
-        let value = "";
-        if (body[pos] === "{") {
-          let depth = 0;
-          const start = pos + 1;
-          pos++;
-          for (; pos < body.length; pos++) {
-            if (body[pos] === "{") depth++;
-            else if (body[pos] === "}") {
-              if (depth === 0) {
-                value = body.slice(start, pos);
-                pos++;
-                break;
-              }
-              depth--;
-            }
-          }
-        } else if (body[pos] === '"') {
-          const start = ++pos;
-          while (pos < body.length && body[pos] !== '"') pos++;
-          value = body.slice(start, pos);
-          pos++;
-        } else {
-          const start = pos;
-          while (pos < body.length && body[pos] !== ",") pos++;
-          value = body.slice(start, pos);
+        if (HIGHLIGHT_AUTHORS.includes(baseName)) {
+          return `<strong>${escapeHTML(baseName)}</strong>${suffix}`;
         }
 
-        fields[name] = decodeLatex(value);
-      }
-
-      return { type, key, fields };
-    }
-
-    function formatAuthors(authorField) {
-      if (!authorField) return "";
-      return authorField
-        .split(/\s+and\s+/i)
-        .map(author => {
-          author = author.trim();
-          if (author.includes(",")) {
-            const parts = author.split(",").map(p => p.trim());
-            return `${parts.slice(1).join(" ")} ${parts[0]}`.trim();
-          }
-          return author;
-        })
-        .join(", ");
-    }
-
-    function venueOf(entry) {
-      const f = entry.fields;
-      return f.journal || f.booktitle || f.school || f.institution || f.publisher || "";
-    }
-
-    function sortEntries(entries) {
-      return entries.sort((a, b) => {
-        const yearA = parseInt(a.fields.year || "0", 10);
-        const yearB = parseInt(b.fields.year || "0", 10);
-        if (yearA !== yearB) return yearB - yearA;
-        return (a.fields.title || "").localeCompare(b.fields.title || "");
-      });
-    }
-
-    function primaryPaperUrl(entry) {
-      const f = entry.fields;
-      if (f.doi) return f.doi.startsWith("http") ? f.doi : `https://doi.org/${f.doi}`;
-      if (f.url) return f.url;
-      return "";
-    }
-
-    function linkFor(entry) {
-      const f = entry.fields;
-      const links = [];
-
-      if (f.download) {
-        links.push(`<a href="${f.download}" target="_blank" rel="noopener">Download</a>`);
-      }
-      if (f.pdf) {
-        links.push(`<a href="${f.pdf}" target="_blank" rel="noopener">PDF</a>`);
-      }
-      if (f.code) {
-        links.push(`<a href="${f.code}" target="_blank" rel="noopener">Code</a>`);
-      }
-      if (f.poster) {
-        links.push(`<a href="${f.poster}" target="_blank" rel="noopener">Poster</a>`);
-      }
-      if (f.slides) {
-        links.push(`<a href="${f.slides}" target="_blank" rel="noopener">Slides</a>`);
-      }
-
-      return links.length ? ` <span class="pub-links">[${links.join("] [")}]</span>` : "";
-    }
-
-    function renderPublications(entries) {
-      const container = document.getElementById("publications");
-      if (!entries.length) {
-        container.innerHTML = "<p>No publications found in publication.bib.</p>";
-        return;
-      }
-
-      const byYear = {};
-      entries.forEach(entry => {
-        const year = entry.fields.year || "Forthcoming";
-        if (!byYear[year]) byYear[year] = [];
-        byYear[year].push(entry);
-      });
-
-      const years = Object.keys(byYear).sort((a, b) => parseInt(b) - parseInt(a));
-      let html = "";
-
-      years.forEach(year => {
-        html += `<h3 class="pub-year">${year}</h3><ul class="publication-list">`;
-        byYear[year].forEach(entry => {
-          const f = entry.fields;
-          const authors = formatAuthors(f.author);
-          const title = f.title || "Untitled";
-          const venue = venueOf(entry);
-          const note = f.note ? ` ${f.note}` : "";
-          const links = linkFor(entry);
-
-          const titleUrl = primaryPaperUrl(entry);
-          const titleHtml = titleUrl
-            ? `<a class="pub-title" href="${titleUrl}" target="_blank" rel="noopener">${title}</a>`
-            : `<span class="pub-title">${title}</span>`;
-
-          html += `<li>`;
-          if (authors) html += `${authors}. `;
-          html += `${titleHtml}.`;
-          if (venue) html += ` <em>${venue}</em>,`;
-          if (f.year) html += ` ${f.year}.`;
-          html += `${note}${links}`;
-          html += `</li>`;
-        });
-        html += "</ul>";
-      });
-
-      container.innerHTML = html;
-    }
-
-    fetch(BIB_FILE)
-      .then(response => {
-        if (!response.ok) throw new Error(`Could not load ${BIB_FILE}`);
-        return response.text();
+        return `${escapeHTML(baseName)}${suffix}`;
       })
-      .then(text => {
-        const entries = sortEntries(splitBibEntries(text).map(parseEntry));
-        renderPublications(entries);
-      })
-      .catch(error => {
-        document.getElementById("publications").innerHTML = `
-          <div class="error">
-            Could not load <code>${BIB_FILE}</code>. This usually happens if you open
-            <code>index.html</code> directly from your computer. Put the files on a web server
-            such as GitHub Pages, or run <code>python -m http.server</code> in this folder and open
-            <code>http://localhost:8000</code>.
-          </div>`;
-      });
-  </script>
+      .join(", ");
+  }
+
+  /************************************************************
+   * Format title
+   ************************************************************/
+  function formatTitle(pub) {
+    const title = escapeHTML(pub.title || "Untitled");
+
+    if (pub.url) {
+      return `<a href="${escapeHTML(pub.url)}" target="_blank" rel="noopener">${title}</a>`;
+    }
+
+    if (pub.doi) {
+      return `<a href="https://doi.org/${escapeHTML(pub.doi)}" target="_blank" rel="noopener">${title}</a>`;
+    }
+
+    return title;
+  }
+
+  /************************************************************
+   * Format venue
+   ************************************************************/
+  function formatVenue(pub) {
+    const year = pub.year ? escapeHTML(pub.year) : "";
+    const month = pub.month ? escapeHTML(pub.month) : "";
+
+    if (pub.type === "inproceedings" || pub.type === "conference") {
+      const venue = pub.booktitle || pub.organization || pub.journal || "";
+
+      if (venue) {
+        return `<em>${escapeHTML(venue)}</em>${month ? ", " + month : ""}${year ? " " + year : ""}.`;
+      }
+
+      return year ? `${year}.` : "";
+    }
+
+    if (pub.journal) {
+      let venue = `<em>${escapeHTML(pub.journal)}</em>`;
+
+      if (pub.volume) {
+        venue += `, ${escapeHTML(pub.volume)}`;
+      }
+
+      if (pub.number) {
+        venue += `(${escapeHTML(pub.number)})`;
+      }
+
+      if (pub.pages) {
+        venue += `:${escapeHTML(pub.pages)}`;
+      }
+
+      if (year) {
+        venue += `, ${year}`;
+      }
+
+      return venue + ".";
+    }
+
+    if (pub.organization) {
+      return `<em>${escapeHTML(pub.organization)}</em>${month ? ", " + month : ""}${year ? " " + year : ""}.`;
+    }
+
+    return year ? `${year}.` : "";
+  }
+
+  /************************************************************
+   * Optional links after each publication
+   ************************************************************/
+  function formatLinks(pub) {
+    const links = [];
+
+    if (pub.pdf) {
+      links.push(`<a href="${escapeHTML(pub.pdf)}" target="_blank" rel="noopener">PDF</a>`);
+    }
+
+    if (pub.download) {
+      links.push(`<a href="${escapeHTML(pub.download)}" target="_blank" rel="noopener">Download</a>`);
+    }
+
+    if (pub.code) {
+      links.push(`<a href="${escapeHTML(pub.code)}" target="_blank" rel="noopener">Code</a>`);
+    }
+
+    if (pub.poster) {
+      links.push(`<a href="${escapeHTML(pub.poster)}" target="_blank" rel="noopener">Poster</a>`);
+    }
+
+    if (pub.slides) {
+      links.push(`<a href="${escapeHTML(pub.slides)}" target="_blank" rel="noopener">Slides</a>`);
+    }
+
+    if (!links.length) return "";
+
+    return ` <span class="pub-links">[${links.join("] [")}]</span>`;
+  }
+
+  /************************************************************
+   * Escape HTML
+   ************************************************************/
+  function escapeHTML(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  document.addEventListener("DOMContentLoaded", loadPublications);
+</script>
 </body>
 </html>
