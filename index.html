@@ -155,7 +155,7 @@
     }
 
     .pub-title {
-      font-weight: bold;
+      font-weight: normal;
     }
 
     .pub-links {
@@ -219,14 +219,15 @@
         <h2>About</h2>
         <p>
          I am a PhD student in Computer Science specializing in machine learning for computational biology. My research focuses on spatial and single-cell omics, with an emphasis on developing graph-based and multimodal models for tissue-scale biological analysis. I work on problems such as spatial transcriptomics enhancement, single-cell to spatial mapping, cell-type deconvolution, multimodal data integration, and 3D reconstruction of tissue organization. My broader research goal is to develop interpretable and scalable computational tools that help bridge machine learning and biological discovery.
+        </p>
       </section>
 
       <section id="research">
         <h2>Research</h2>
         <ul>
-			<li> Computational Biology and Bioinformatics
-			<li> Machine Learning
-		</ul>
+          <li>Computational Biology and Bioinformatics</li>
+          <li>Machine Learning</li>
+        </ul>
 
         <div class="research-links">
           <strong>Profiles:</strong>
@@ -244,8 +245,8 @@
         <div class="item">
           <div class="item-title">Graduate Research Assistant</div>
           <div class="item-meta">University of Central Florida | May 2025 - Present</div>
-			<p>
-			</p>
+          <p>
+          </p>
         </div>
 
         <div class="item">
@@ -254,8 +255,8 @@
           <p>
           </p>
         </div>
-		
-		<div class="item">
+
+        <div class="item">
           <div class="item-title">Lecturer</div>
           <div class="item-meta">University of Asia Pacific | July 2023 - June 2024</div>
           <p>
@@ -280,271 +281,295 @@
     </main>
   </div>
 
-<script>
-  /************************************************************
-   * Publication settings
-   ************************************************************/
-  const PUBLICATION_BIB_FILE = "publication.bib";
+  <script>
+    /************************************************************
+     * Publication settings
+     ************************************************************/
+    const PUBLICATION_BIB_FILE = "publication.bib";
 
-  // Names to bold in the author list
-  const HIGHLIGHT_AUTHORS = [
-    "Muhtasim Noor Alif",
-    "Wei Zhang"
-  ];
+    // Names to bold in the author list
+    const HIGHLIGHT_AUTHORS = [
+      "Muhtasim Noor Alif",
+      "Wei Zhang"
+    ];
 
-  // Optional suffixes after author names
-  // Example: Wei Zhang#
-  const AUTHOR_SUFFIXES = {
-    "Wei Zhang": "#"
-  };
+    /************************************************************
+     * Load and render publications
+     ************************************************************/
+    async function loadPublications() {
+      const container = document.getElementById("publication-list");
 
-  /************************************************************
-   * Load and render publications
-   ************************************************************/
-  async function loadPublications() {
-    const container = document.getElementById("publication-list");
+      try {
+        const response = await fetch(PUBLICATION_BIB_FILE);
 
-    try {
-      const response = await fetch(PUBLICATION_BIB_FILE);
+        if (!response.ok) {
+          throw new Error("Could not load publication.bib");
+        }
 
-      if (!response.ok) {
-        throw new Error("Could not load publication.bib");
+        const bibText = await response.text();
+        const publications = parseBibTeX(bibText);
+
+        publications.sort((a, b) => {
+          const yearA = parseInt(a.year || "0", 10);
+          const yearB = parseInt(b.year || "0", 10);
+          return yearB - yearA;
+        });
+
+        container.innerHTML = renderPublicationsByYear(publications);
+      } catch (error) {
+        container.innerHTML = `
+          <div class="error">
+            Could not load <code>publication.bib</code>. This usually happens if you open
+            <code>index.html</code> directly from your computer. Run
+            <code>python -m http.server</code> in this folder and open
+            <code>http://localhost:8000</code>.
+          </div>
+        `;
+      }
+    }
+
+    /************************************************************
+     * Simple BibTeX parser
+     ************************************************************/
+    function parseBibTeX(text) {
+      const entries = [];
+      const entryRegex = /@(\w+)\s*\{\s*([^,]+),([\s\S]*?)(?=\n@|\s*$)/g;
+      let match;
+
+      while ((match = entryRegex.exec(text)) !== null) {
+        const type = match[1].trim().toLowerCase();
+        const key = match[2].trim();
+        let body = match[3].trim();
+
+        if (body.endsWith("}")) {
+          body = body.slice(0, -1).trim();
+        }
+
+        const entry = {
+          type,
+          key
+        };
+
+        const fieldRegex = /(\w+)\s*=\s*(\{(?:[^{}]|\{[^{}]*\})*\}|"[^"]*"|[^,\n]+)\s*,?/g;
+        let fieldMatch;
+
+        while ((fieldMatch = fieldRegex.exec(body)) !== null) {
+          const fieldName = fieldMatch[1].trim().toLowerCase();
+          let fieldValue = fieldMatch[2].trim();
+
+          fieldValue = fieldValue
+            .replace(/^\{/, "")
+            .replace(/\}$/, "")
+            .replace(/^"/, "")
+            .replace(/"$/, "")
+            .replace(/\\&/g, "&")
+            .replace(/\\#/g, "#")
+            .replace(/--/g, "–")
+            .replace(/\s+/g, " ")
+            .trim();
+
+          entry[fieldName] = fieldValue;
+        }
+
+        entries.push(entry);
       }
 
-      const bibText = await response.text();
-      const publications = parseBibTeX(bibText);
+      return entries;
+    }
 
-      publications.sort((a, b) => {
-        const yearA = parseInt(a.year || "0", 10);
-        const yearB = parseInt(b.year || "0", 10);
-        return yearB - yearA;
+    /************************************************************
+     * Render publication list, grouped by year
+     ************************************************************/
+    function renderPublicationsByYear(publications) {
+      if (!publications.length) {
+        return "<p>No publications found.</p>";
+      }
+
+      const grouped = {};
+
+      publications.forEach(pub => {
+        const year = pub.year || "Other";
+        if (!grouped[year]) {
+          grouped[year] = [];
+        }
+        grouped[year].push(pub);
       });
 
-      container.innerHTML = renderPublications(publications);
-    } catch (error) {
-      container.innerHTML = `
-        <div class="bib-error">
-          Could not load <code>publication.bib</code>. This usually happens if you open
-          <code>index.html</code> directly from your computer. Run
-          <code>python -m http.server</code> in this folder and open
-          <code>http://localhost:8000</code>.
-        </div>
-      `;
+      const years = Object.keys(grouped).sort((a, b) => {
+        if (a === "Other") return 1;
+        if (b === "Other") return -1;
+        return parseInt(b, 10) - parseInt(a, 10);
+      });
+
+      let html = "";
+
+      years.forEach(year => {
+        html += `<h4 class="pub-year">${escapeHTML(year)}</h4>`;
+        html += "<ul class='publication-list'>";
+
+        grouped[year].forEach(pub => {
+          const authors = formatAuthors(pub.author || "");
+          const title = formatTitle(pub);
+          const venue = formatVenue(pub);
+          const links = formatLinks(pub);
+
+          html += `
+            <li>
+              ${authors}. ${title}. ${venue}${links}
+            </li>
+          `;
+        });
+
+        html += "</ul>";
+      });
+
+      return html;
     }
-  }
 
-  /************************************************************
-   * Simple BibTeX parser
-   ************************************************************/
-  function parseBibTeX(text) {
-    const entries = [];
-    const entryRegex = /@(\w+)\s*\{\s*([^,]+),([\s\S]*?)\n\}/g;
-    let match;
+    /************************************************************
+     * Format authors
+     ************************************************************/
+    function formatAuthors(authorField) {
+      if (!authorField) return "";
 
-    while ((match = entryRegex.exec(text)) !== null) {
-      const type = match[1].trim().toLowerCase();
-      const key = match[2].trim();
-      const body = match[3];
+      const authors = authorField
+        .split(/\s+and\s+/)
+        .map(author => {
+          let cleanAuthor = author.trim();
 
-      const entry = {
-        type,
-        key
-      };
+          // Convert "Last, First" to "First Last"
+          if (cleanAuthor.includes(",")) {
+            const parts = cleanAuthor.split(",").map(x => x.trim());
+            cleanAuthor = `${parts[1]} ${parts[0]}`;
+          }
 
-      const fieldRegex = /(\w+)\s*=\s*(\{(?:[^{}]|\{[^{}]*\})*\}|"[^"]*"|[^,\n]+)\s*,?/g;
-      let fieldMatch;
+          cleanAuthor = cleanAuthor
+            .replace(/\\#/g, "")
+            .replace(/#/g, "")
+            .replace(/\s+/g, " ")
+            .trim();
 
-      while ((fieldMatch = fieldRegex.exec(body)) !== null) {
-        const fieldName = fieldMatch[1].trim().toLowerCase();
-        let fieldValue = fieldMatch[2].trim();
+          if (HIGHLIGHT_AUTHORS.includes(cleanAuthor)) {
+            return `<strong>${escapeHTML(cleanAuthor)}</strong>`;
+          }
 
-        fieldValue = fieldValue
-          .replace(/^\{/, "")
-          .replace(/\}$/, "")
-          .replace(/^"/, "")
-          .replace(/"$/, "")
-          .replace(/\\&/g, "&")
-          .replace(/--/g, "–")
-          .replace(/\s+/g, " ")
-          .trim();
+          return escapeHTML(cleanAuthor);
+        });
 
-        entry[fieldName] = fieldValue;
+      if (authors.length > 1) {
+        return authors.slice(0, -1).join(", ") + ", and " + authors[authors.length - 1];
       }
 
-      entries.push(entry);
+      return authors.join("");
     }
 
-    return entries;
-  }
+    /************************************************************
+     * Format title
+     ************************************************************/
+    function formatTitle(pub) {
+      const title = escapeHTML(pub.title || "Untitled");
 
-  /************************************************************
-   * Render publication list
-   ************************************************************/
-  function renderPublications(publications) {
-    if (!publications.length) {
-      return "<p>No publications found.</p>";
+      if (pub.url) {
+        return `<a href="${escapeHTML(pub.url)}" target="_blank" rel="noopener">${title}</a>`;
+      }
+
+      if (pub.doi) {
+        return `<a href="https://doi.org/${escapeHTML(pub.doi)}" target="_blank" rel="noopener">${title}</a>`;
+      }
+
+      return title;
     }
 
-    let html = "<ul class='publications'>";
+    /************************************************************
+     * Format venue
+     ************************************************************/
+    function formatVenue(pub) {
+      const year = pub.year ? escapeHTML(pub.year) : "";
+      const month = pub.month ? escapeHTML(pub.month) : "";
 
-    publications.forEach(pub => {
-      const authors = formatAuthors(pub.author || "");
-      const title = formatTitle(pub);
-      const venue = formatVenue(pub);
-      const links = formatLinks(pub);
+      if (pub.type === "inproceedings" || pub.type === "conference") {
+        const venue = pub.booktitle || pub.organization || pub.journal || "";
 
-      html += `
-        <li>
-          ${authors}. ${title}. ${venue}${links}
-        </li>
-      `;
-    });
-
-    html += "</ul>";
-    return html;
-  }
-
-  /************************************************************
-   * Format authors
-   ************************************************************/
-  function formatAuthors(authorField) {
-    if (!authorField) return "";
-
-    return authorField
-      .split(/\s+and\s+/)
-      .map(author => {
-        let cleanAuthor = author.trim();
-
-        // Convert "Last, First" to "First Last"
-        if (cleanAuthor.includes(",")) {
-          const parts = cleanAuthor.split(",").map(x => x.trim());
-          cleanAuthor = `${parts[1]} ${parts[0]}`;
+        if (venue) {
+          return `<em>${escapeHTML(venue)}</em>${month ? ", " + month : ""}${year ? " " + year : ""}.`;
         }
 
-        cleanAuthor = cleanAuthor
-          .replace(/\\#/g, "#")
-          .replace(/\s+/g, " ")
-          .trim();
+        return year ? `${year}.` : "";
+      }
 
-        const baseName = cleanAuthor.replace(/#$/, "").trim();
-        const suffix = AUTHOR_SUFFIXES[baseName] || "";
+      if (pub.journal) {
+        let venue = `<em>${escapeHTML(pub.journal)}</em>`;
 
-        if (HIGHLIGHT_AUTHORS.includes(baseName)) {
-          return `<strong>${escapeHTML(baseName)}</strong>${suffix}`;
+        if (pub.volume) {
+          venue += `, ${escapeHTML(pub.volume)}`;
         }
 
-        return `${escapeHTML(baseName)}${suffix}`;
-      })
-      .join(", ");
-  }
+        if (pub.number) {
+          venue += `(${escapeHTML(pub.number)})`;
+        }
 
-  /************************************************************
-   * Format title
-   ************************************************************/
-  function formatTitle(pub) {
-    const title = escapeHTML(pub.title || "Untitled");
+        if (pub.pages) {
+          venue += `:${escapeHTML(pub.pages)}`;
+        }
 
-    if (pub.url) {
-      return `<a href="${escapeHTML(pub.url)}" target="_blank" rel="noopener">${title}</a>`;
-    }
+        if (year) {
+          venue += `, ${year}`;
+        }
 
-    if (pub.doi) {
-      return `<a href="https://doi.org/${escapeHTML(pub.doi)}" target="_blank" rel="noopener">${title}</a>`;
-    }
+        return venue + ".";
+      }
 
-    return title;
-  }
-
-  /************************************************************
-   * Format venue
-   ************************************************************/
-  function formatVenue(pub) {
-    const year = pub.year ? escapeHTML(pub.year) : "";
-    const month = pub.month ? escapeHTML(pub.month) : "";
-
-    if (pub.type === "inproceedings" || pub.type === "conference") {
-      const venue = pub.booktitle || pub.organization || pub.journal || "";
-
-      if (venue) {
-        return `<em>${escapeHTML(venue)}</em>${month ? ", " + month : ""}${year ? " " + year : ""}.`;
+      if (pub.organization) {
+        return `<em>${escapeHTML(pub.organization)}</em>${month ? ", " + month : ""}${year ? " " + year : ""}.`;
       }
 
       return year ? `${year}.` : "";
     }
 
-    if (pub.journal) {
-      let venue = `<em>${escapeHTML(pub.journal)}</em>`;
+    /************************************************************
+     * Optional links after each publication
+     ************************************************************/
+    function formatLinks(pub) {
+      const links = [];
 
-      if (pub.volume) {
-        venue += `, ${escapeHTML(pub.volume)}`;
+      if (pub.pdf) {
+        links.push(`<a href="${escapeHTML(pub.pdf)}" target="_blank" rel="noopener">PDF</a>`);
       }
 
-      if (pub.number) {
-        venue += `(${escapeHTML(pub.number)})`;
+      if (pub.download) {
+        links.push(`<a href="${escapeHTML(pub.download)}" target="_blank" rel="noopener">Download</a>`);
       }
 
-      if (pub.pages) {
-        venue += `:${escapeHTML(pub.pages)}`;
+      if (pub.code) {
+        links.push(`<a href="${escapeHTML(pub.code)}" target="_blank" rel="noopener">Code</a>`);
       }
 
-      if (year) {
-        venue += `, ${year}`;
+      if (pub.poster) {
+        links.push(`<a href="${escapeHTML(pub.poster)}" target="_blank" rel="noopener">Poster</a>`);
       }
 
-      return venue + ".";
+      if (pub.slides) {
+        links.push(`<a href="${escapeHTML(pub.slides)}" target="_blank" rel="noopener">Slides</a>`);
+      }
+
+      if (!links.length) return "";
+
+      return ` <span class="pub-links">[${links.join("] [")}]</span>`;
     }
 
-    if (pub.organization) {
-      return `<em>${escapeHTML(pub.organization)}</em>${month ? ", " + month : ""}${year ? " " + year : ""}.`;
+    /************************************************************
+     * Escape HTML
+     ************************************************************/
+    function escapeHTML(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
 
-    return year ? `${year}.` : "";
-  }
-
-  /************************************************************
-   * Optional links after each publication
-   ************************************************************/
-  function formatLinks(pub) {
-    const links = [];
-
-    if (pub.pdf) {
-      links.push(`<a href="${escapeHTML(pub.pdf)}" target="_blank" rel="noopener">PDF</a>`);
-    }
-
-    if (pub.download) {
-      links.push(`<a href="${escapeHTML(pub.download)}" target="_blank" rel="noopener">Download</a>`);
-    }
-
-    if (pub.code) {
-      links.push(`<a href="${escapeHTML(pub.code)}" target="_blank" rel="noopener">Code</a>`);
-    }
-
-    if (pub.poster) {
-      links.push(`<a href="${escapeHTML(pub.poster)}" target="_blank" rel="noopener">Poster</a>`);
-    }
-
-    if (pub.slides) {
-      links.push(`<a href="${escapeHTML(pub.slides)}" target="_blank" rel="noopener">Slides</a>`);
-    }
-
-    if (!links.length) return "";
-
-    return ` <span class="pub-links">[${links.join("] [")}]</span>`;
-  }
-
-  /************************************************************
-   * Escape HTML
-   ************************************************************/
-  function escapeHTML(str) {
-    return String(str)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-  document.addEventListener("DOMContentLoaded", loadPublications);
-</script>
+    document.addEventListener("DOMContentLoaded", loadPublications);
+  </script>
 </body>
 </html>
