@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Muhtasim Noor Alif</title>
+
+  <style>
+    /* ================================
+       COLOR PALETTE - edit these hex codes
+       ================================ */
+    :root {
+      --page-bg: #ffffff;
+      --text-main: #222222;
+      --text-muted: #666666;
+      --accent: #004b8d;
+      --accent-soft: #e8f1fb;
+      --border: #dddddd;
+      --sidebar-bg: #f7f7f7;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--page-bg);
+      color: var(--text-main);
+      line-height: 1.55;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      gap: 36px;
+      padding: 32px 24px;
+    }
+
+    .sidebar {
+      width: 240px;
+      flex: 0 0 240px;
+      background: var(--sidebar-bg);
+      border: 1px solid var(--border);
+      padding: 20px;
+      align-self: flex-start;
+    }
+
+    .profile-photo {
+      width: 100%;
+      border: 1px solid var(--border);
+      display: block;
+      margin-bottom: 14px;
+      background: #ffffff;
+    }
+
+    .name {
+      font-size: 1.6rem;
+      margin: 0 0 4px;
+    }
+
+    .title {
+      margin: 0 0 18px;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .contact h2 {
+      font-size: 1rem;
+      margin: 16px 0 8px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 4px;
+    }
+
+    .contact ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .contact li {
+      margin-bottom: 6px;
+    }
+
+    main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    nav {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+      margin-bottom: 24px;
+    }
+
+    nav a {
+      margin-right: 18px;
+      font-weight: bold;
+    }
+
+    section {
+      margin-bottom: 34px;
+    }
+
+    h1, h2, h3 {
+      line-height: 1.25;
+    }
+
+    h2 {
+      color: var(--accent);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 5px;
+      margin-top: 0;
+    }
+
+    .research-links {
+      margin: 10px 0 18px;
+      padding: 10px 12px;
+      background: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+    }
+
+    .item {
+      margin-bottom: 18px;
+    }
+
+    .item-title {
+      font-weight: bold;
+    }
+
+    .item-meta {
+      color: var(--text-muted);
+    }
+
+    .pub-year {
+      margin-top: 20px;
+      margin-bottom: 8px;
+      color: var(--text-main);
+    }
+
+    .publication-list {
+      padding-left: 20px;
+      margin-top: 0;
+    }
+
+    .publication-list li {
+      margin-bottom: 10px;
+    }
+
+    .pub-title {
+      font-weight: bold;
+    }
+
+    .pub-links {
+      white-space: nowrap;
+    }
+
+    .error {
+      color: #8a1f11;
+      background: #fdecea;
+      border: 1px solid #f5c2c7;
+      padding: 10px;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        display: block;
+        padding: 20px 16px;
+      }
+
+      .sidebar {
+        width: auto;
+        margin-bottom: 24px;
+      }
+
+      nav a {
+        display: inline-block;
+        margin-bottom: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <aside class="sidebar">
+      <!-- Replace this image with your own file, for example: assets/profile.jpg -->
+      <img class="profile-photo" src="assets/me.jpg" alt="Profile photo" />
+
+      <h1 class="name">Muhtasim Noor Alif</h1>
+      <p class="title">PhD Student in Computer Science<br />University of Central Florida</p>
+
+      <div class="contact">
+        <h2>Contact</h2>
+        <ul>
+          <li><a href="mailto:muhtasimnoor@gmail.com">Email</a></li>
+          <li><a href="https://www.linkedin.com/in/muhtasim-alif" target="_blank" rel="noopener">LinkedIn</a></li>
+          <li><a href="https://github.com/Alif108" target="_blank" rel="noopener">GitHub</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main>
+      <nav>
+        <a href="#about">About</a>
+        <a href="#research">Research</a>
+        <a href="#experience">Experience</a>
+        <a href="#education">Education</a>
+      </nav>
+
+      <section id="about">
+        <h2>About</h2>
+        <p>
+         I am a PhD student in Computer Science specializing in machine learning for computational biology. My research focuses on spatial and single-cell omics, with an emphasis on developing graph-based and multimodal models for tissue-scale biological analysis. I work on problems such as spatial transcriptomics enhancement, single-cell to spatial mapping, cell-type deconvolution, multimodal data integration, and 3D reconstruction of tissue organization. My broader research goal is to develop interpretable and scalable computational tools that help bridge machine learning and biological discovery.
+      </section>
+
+      <section id="research">
+        <h2>Research</h2>
+        <ul>
+			<li> Computational Biology and Bioinformatics
+			<li> Machine Learning
+		</ul>
+
+        <div class="research-links">
+          <strong>Profiles:</strong>
+          <a href="https://scholar.google.com/citations?user=qZHaskUAAAAJ&hl=en" target="_blank" rel="noopener">Google Scholar</a>
+          &nbsp;|&nbsp;
+          <a href="https://orcid.org/0009-0008-0254-3638" target="_blank" rel="noopener">ORCID</a>
+        </div>
+
+        <h3>Publications</h3>
+        <div id="publications">Loading publications...</div>
+      </section>
+
+      <section id="experience">
+        <h2>Experience</h2>
+        <div class="item">
+          <div class="item-title">Graduate Research Assistant</div>
+          <div class="item-meta">University of Central Florida | May 2025 - Present</div>
+			<p>
+			</p>
+        </div>
+
+        <div class="item">
+          <div class="item-title">ORCGS Doctoral Fellow</div>
+          <div class="item-meta">University of Central Florida | August 2024 - April 2025</div>
+          <p>
+          </p>
+        </div>
+		
+		<div class="item">
+          <div class="item-title">Lecturer</div>
+          <div class="item-meta">University of Asia Pacific | July 2023 - June 2024</div>
+          <p>
+          </p>
+        </div>
+      </section>
+
+      <section id="education">
+        <h2>Education</h2>
+        <div class="item">
+          <div class="item-title">PhD in Computer Science</div>
+          <div class="item-meta">University of Central Florida | 2024 - Present</div>
+          <p></p>
+        </div>
+
+        <div class="item">
+          <div class="item-title">Bachelor in Computer Science</div>
+          <div class="item-meta">Bangladesh University of Engineering and Technology | 2018 - 2023</div>
+          <p></p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const BIB_FILE = "publication.bib";
+
+    function decodeLatex(text) {
+      if (!text) return "";
+      return text
+        .replace(/[{}]/g, "")
+        .replace(/\\&/g, "&")
+        .replace(/\\_/g, "_")
+        .replace(/\\%/g, "%")
+        .replace(/\\textit\s*/g, "")
+        .replace(/\\emph\s*/g, "")
+        .replace(/\\'a/g, "á")
+        .replace(/\\'e/g, "é")
+        .replace(/\\'i/g, "í")
+        .replace(/\\'o/g, "ó")
+        .replace(/\\'u/g, "ú")
+        .replace(/\\`a/g, "à")
+        .replace(/\\`e/g, "è")
+        .replace(/\\`i/g, "ì")
+        .replace(/\\`o/g, "ò")
+        .replace(/\\`u/g, "ù")
+        .replace(/\\"a/g, "ä")
+        .replace(/\\"e/g, "ë")
+        .replace(/\\"i/g, "ï")
+        .replace(/\\"o/g, "ö")
+        .replace(/\\"u/g, "ü")
+        .replace(/\\~n/g, "ñ")
+        .replace(/\\c\s*c/g, "ç")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function splitBibEntries(bibText) {
+      const entries = [];
+      let i = 0;
+
+      while (i < bibText.length) {
+        const at = bibText.indexOf("@", i);
+        if (at === -1) break;
+
+        const open = bibText.indexOf("{", at);
+        if (open === -1) break;
+
+        let depth = 0;
+        let end = open;
+        for (; end < bibText.length; end++) {
+          const ch = bibText[end];
+          if (ch === "{") depth++;
+          if (ch === "}") depth--;
+          if (depth === 0) {
+            entries.push(bibText.slice(at, end + 1));
+            break;
+          }
+        }
+        i = end + 1;
+      }
+
+      return entries;
+    }
+
+    function parseEntry(entryText) {
+      const typeMatch = entryText.match(/^@(\w+)\s*\{/);
+      const type = typeMatch ? typeMatch[1].toLowerCase() : "misc";
+      const firstComma = entryText.indexOf(",");
+      const lastBrace = entryText.lastIndexOf("}");
+      const key = entryText.slice(entryText.indexOf("{") + 1, firstComma).trim();
+      const body = entryText.slice(firstComma + 1, lastBrace);
+
+      const fields = {};
+      let pos = 0;
+
+      while (pos < body.length) {
+        while (pos < body.length && /[\s,]/.test(body[pos])) pos++;
+
+        const nameMatch = body.slice(pos).match(/^([a-zA-Z0-9_\-]+)\s*=/);
+        if (!nameMatch) break;
+
+        const name = nameMatch[1].toLowerCase();
+        pos += nameMatch[0].length;
+        while (pos < body.length && /\s/.test(body[pos])) pos++;
+
+        let value = "";
+        if (body[pos] === "{") {
+          let depth = 0;
+          const start = pos + 1;
+          pos++;
+          for (; pos < body.length; pos++) {
+            if (body[pos] === "{") depth++;
+            else if (body[pos] === "}") {
+              if (depth === 0) {
+                value = body.slice(start, pos);
+                pos++;
+                break;
+              }
+              depth--;
+            }
+          }
+        } else if (body[pos] === '"') {
+          const start = ++pos;
+          while (pos < body.length && body[pos] !== '"') pos++;
+          value = body.slice(start, pos);
+          pos++;
+        } else {
+          const start = pos;
+          while (pos < body.length && body[pos] !== ",") pos++;
+          value = body.slice(start, pos);
+        }
+
+        fields[name] = decodeLatex(value);
+      }
+
+      return { type, key, fields };
+    }
+
+    function formatAuthors(authorField) {
+      if (!authorField) return "";
+      return authorField
+        .split(/\s+and\s+/i)
+        .map(author => {
+          author = author.trim();
+          if (author.includes(",")) {
+            const parts = author.split(",").map(p => p.trim());
+            return `${parts.slice(1).join(" ")} ${parts[0]}`.trim();
+          }
+          return author;
+        })
+        .join(", ");
+    }
+
+    function venueOf(entry) {
+      const f = entry.fields;
+      return f.journal || f.booktitle || f.school || f.institution || f.publisher || "";
+    }
+
+    function sortEntries(entries) {
+      return entries.sort((a, b) => {
+        const yearA = parseInt(a.fields.year || "0", 10);
+        const yearB = parseInt(b.fields.year || "0", 10);
+        if (yearA !== yearB) return yearB - yearA;
+        return (a.fields.title || "").localeCompare(b.fields.title || "");
+      });
+    }
+
+    function primaryPaperUrl(entry) {
+      const f = entry.fields;
+      if (f.doi) return f.doi.startsWith("http") ? f.doi : `https://doi.org/${f.doi}`;
+      if (f.url) return f.url;
+      return "";
+    }
+
+    function linkFor(entry) {
+      const f = entry.fields;
+      const links = [];
+
+      if (f.download) {
+        links.push(`<a href="${f.download}" target="_blank" rel="noopener">Download</a>`);
+      }
+      if (f.pdf) {
+        links.push(`<a href="${f.pdf}" target="_blank" rel="noopener">PDF</a>`);
+      }
+      if (f.code) {
+        links.push(`<a href="${f.code}" target="_blank" rel="noopener">Code</a>`);
+      }
+      if (f.poster) {
+        links.push(`<a href="${f.poster}" target="_blank" rel="noopener">Poster</a>`);
+      }
+      if (f.slides) {
+        links.push(`<a href="${f.slides}" target="_blank" rel="noopener">Slides</a>`);
+      }
+
+      return links.length ? ` <span class="pub-links">[${links.join("] [")}]</span>` : "";
+    }
+
+    function renderPublications(entries) {
+      const container = document.getElementById("publications");
+      if (!entries.length) {
+        container.innerHTML = "<p>No publications found in publication.bib.</p>";
+        return;
+      }
+
+      const byYear = {};
+      entries.forEach(entry => {
+        const year = entry.fields.year || "Forthcoming";
+        if (!byYear[year]) byYear[year] = [];
+        byYear[year].push(entry);
+      });
+
+      const years = Object.keys(byYear).sort((a, b) => parseInt(b) - parseInt(a));
+      let html = "";
+
+      years.forEach(year => {
+        html += `<h3 class="pub-year">${year}</h3><ul class="publication-list">`;
+        byYear[year].forEach(entry => {
+          const f = entry.fields;
+          const authors = formatAuthors(f.author);
+          const title = f.title || "Untitled";
+          const venue = venueOf(entry);
+          const note = f.note ? ` ${f.note}` : "";
+          const links = linkFor(entry);
+
+          const titleUrl = primaryPaperUrl(entry);
+          const titleHtml = titleUrl
+            ? `<a class="pub-title" href="${titleUrl}" target="_blank" rel="noopener">${title}</a>`
+            : `<span class="pub-title">${title}</span>`;
+
+          html += `<li>`;
+          if (authors) html += `${authors}. `;
+          html += `${titleHtml}.`;
+          if (venue) html += ` <em>${venue}</em>,`;
+          if (f.year) html += ` ${f.year}.`;
+          html += `${note}${links}`;
+          html += `</li>`;
+        });
+        html += "</ul>";
+      });
+
+      container.innerHTML = html;
+    }
+
+    fetch(BIB_FILE)
+      .then(response => {
+        if (!response.ok) throw new Error(`Could not load ${BIB_FILE}`);
+        return response.text();
+      })
+      .then(text => {
+        const entries = sortEntries(splitBibEntries(text).map(parseEntry));
+        renderPublications(entries);
+      })
+      .catch(error => {
+        document.getElementById("publications").innerHTML = `
+          <div class="error">
+            Could not load <code>${BIB_FILE}</code>. This usually happens if you open
+            <code>index.html</code> directly from your computer. Put the files on a web server
+            such as GitHub Pages, or run <code>python -m http.server</code> in this folder and open
+            <code>http://localhost:8000</code>.
+          </div>`;
+      });
+  </script>
+</body>
+</html>
